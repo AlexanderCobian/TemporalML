@@ -89,3 +89,28 @@ class Feature_NextOccurrence(Feature):
 			if len(pos_times_until) > 0:
 				result = min(result,min(pos_times_until))
 		return result
+
+class Tree_Node(object):
+
+	def __init__(self,path="X"):
+		self.path = path
+	
+def mean(values):
+	return float(sum(values))/len(values)
+
+def weighted_entropy(pos_left_weight,neg_left_weight,pos_right_weight,neg_right_weight):
+	left_proportion = (pos_left_weight + neg_left_weight) / (pos_left_weight + neg_left_weight + pos_right_weight + neg_right_weight)
+	right_proportion = 1.0 - left_proportion
+	return (left_proportion * entropy(pos_left_weight,neg_left_weight)) + (right_proportion * entropy(pos_right_weight,neg_right_weight))
+
+def entropy(pos_weight,neg_weight):
+	all_weight = pos_weight + neg_weight
+	if all_weight <= 0.0: # in case of floating point error
+		return 0.0
+	return -xlnx(pos_weight/all_weight) - xlnx(neg_weight/all_weight)
+
+def xlnx(x):
+	if x <= 0.0: # in case of floating point error
+		return 0.0
+	else:
+		return x * math.log(x,2.0)
