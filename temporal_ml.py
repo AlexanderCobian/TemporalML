@@ -23,13 +23,27 @@ class Example_Moment(object):
 		self.moment = moment
 	
 	def times_since_occurrence(self,event):
+		# moment - occurrence, so PAST occurrences are positive
 		differences = [self.moment-occurrence for occurrence in self.example.events[event]]
 		
 		# convert timedeltas to day integers so that absolute and relative times can both be used
 		if type(self.moment) == datetime.timedelta:
 			differences = [x.days for x in differences]
 			
-		return [float(x) for x in differences]
+		return [float(x) for x in differences if x >= 0.0]
+	
+	def times_until_occurrence(self,event):
+		# occurrence - moment, so FUTURE occurrences are positive
+		differences = [occurrence-self.moment for occurrence in self.example.events[event]]
+		
+		# convert timedeltas to day integers so that absolute and relative times can both be used
+		if type(self.moment) == datetime.timedelta:
+			differences = [x.days for x in differences]
+		
+		return [float(x) for x in differences if x >= 0.0]
+	
+	def compute_label_and_weight(self,classlabel_feature):
+		(self.label,self.weight) = classlabel_feature.query(self)
 
 class Feature(object):
 	
@@ -55,10 +69,8 @@ class Feature_LastOccurrence(Feature):
 	def query(self,example_moment):
 		result = float("Inf")
 		for event in self.event_names:
-			times_since = example_moment.times_since_occurrence(event)
-			pos_times_since = [x for x in times_since if x >= 0.0]
-			if len(pos_times_since) > 0:
-				result = min(result,min(pos_times_since))
+			for time_since in example_moment.times_since_occurrence(event):
+				result = min(result,time_since)
 		return result
 
 # obviously, this feature type should only be used for example-moments with
@@ -84,33 +96,48 @@ class Feature_NextOccurrence(Feature):
 	def query(self,example_moment):
 		result = float("Inf")
 		for event in self.event_names:
-			times_since = example_moment.times_since_occurrence(event)
-			pos_times_until = [-x for x in times_since if x <= 0.0]
-			if len(pos_times_until) > 0:
-				result = min(result,min(pos_times_until))
+			for time_until in example_moment.times_until_occurrence(event):
+				result = min(result,time_until)
 		return result
 
-class Tree_Node(object):
+# querying a ClassLabel Feature returns a (label,weight) pair, label in {+,-}, weight 0.0+
+# ClassLabel features are unweighted (all weights 1.0) unless otherwise specified
 
-	def __init__(self,path="X"):
-		self.path = path
+class Feature_ClassLabel_ImpendingEvent(Feature):
+
+	def __init__(self,feature_name,future_threshold,*event_names):
+		Feature.__init__(self,feature_name,"ClassLabel_ImpendingEvent")
+		self.future_threshold = future_threshold
+		self.event_names = event_names
 	
-def mean(values):
-	return float(sum(values))/len(values)
+	def query(self,example_moment):
+		next_occurrence = float("Inf")
+		for event in self.event_names:
+			for time_until in example_moment.times_until_occurrence(event):
+				next_occurrence = min(next_occurrence,time_until)
+		if next_occurrence <= self.future_threshold:
+			return ("+",1.0)
+		else:
+			return ("-",1.0)
 
-def weighted_entropy(pos_left_weight,neg_left_weight,pos_right_weight,neg_right_weight):
-	left_proportion = (pos_left_weight + neg_left_weight) / (pos_left_weight + neg_left_weight + pos_right_weight + neg_right_weight)
-	right_proportion = 1.0 - left_proportion
-	return (left_proportion * entropy(pos_left_weight,neg_left_weight)) + (right_proportion * entropy(pos_right_weight,neg_right_weight))
+class Feature_ClassLabel_ImpendingEvent_LinearWeight(Feature):
 
-def entropy(pos_weight,neg_weight):
-	all_weight = pos_weight + neg_weight
-	if all_weight <= 0.0: # in case of floating point error
-		return 0.0
-	return -xlnx(pos_weight/all_weight) - xlnx(neg_weight/all_weight)
-
-def xlnx(x):
-	if x <= 0.0: # in case of floating point error
-		return 0.0
-	else:
-		return x * math.log(x,2.0)
+	def __init__(self,feature_name,zero_weight_threshold,*event_names):
+		Feature.__init__(self,feature_name,"ClassLabel_ImpendingEvent_LinearWeight")
+		self.zero_weight_threshold = zero_weight_threshold
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		next_occurrence = float("Inf")
+		for event in self.event_names:
+			for time_until in example_moment.times_until_occurrence(event):
+				next_occurrence = min(next_occurrence,time_until)
+		if next_occurrence >= zero_weight_threshold * 2:
+			return ("-",1.0)
+		elif next_occurrence >= zero_weight_threshold:
+			weight = (next_occurrence-zero_weight_threshold)/(zero_weight_threshold)
+			return ("-",weight)
+		else:
+			weight = (zero_weight_threshold-next_occurrence)/(zero_weight_threshold)
+			return ("+",weight)
+		
