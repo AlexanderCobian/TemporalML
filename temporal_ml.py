@@ -44,11 +44,11 @@ class Example_Moment(object):
 		return [float(x) for x in differences]
 	
 	def times_since_occurrence(self,event):
-		differences = temporal_distance_from_occurrence(event)
+		differences = self.temporal_distance_from_occurrence(event)
 		return [x for x in differences if x >= 0.0]
 	
 	def times_until_occurrence(self,event):
-		differences = temporal_distance_from_occurrence(event)
+		differences = self.temporal_distance_from_occurrence(event)
 		differences = [-x for x in differences]
 		return [x for x in differences if x >= 0.0]
 	
