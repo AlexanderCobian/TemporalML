@@ -38,7 +38,7 @@ class Example_Moment(object):
 			else:
 				differences.append(self.moment-self.moment) # zero but preserves typing
 		
-		if type(self.moment) == datetime.timedelta:
+		if type(self.moment) == datetime.date:
 			differences = [x.days for x in differences]
 		
 		return [float(x) for x in differences]
