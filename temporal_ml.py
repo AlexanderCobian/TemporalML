@@ -8,10 +8,12 @@ class Example(object):
 		self.static_values = dict()
 		self.events = dict()
 
-	def add_event(self,event_name,event_time):
+	def add_event(self,event_name,event_start_time,event_end_time=None):
 		if event_name not in self.events:
 			self.events[event_name] = []
-		self.events[event_name].append(event_time)
+		if event_end_time == None:
+			event_end_time = event_start_time
+		self.events[event_name].append((event_start_time,event_end_time))
 	
 	def create_example_moment(self,moment):
 		return Example_Moment(self,moment)
@@ -22,25 +24,33 @@ class Example_Moment(object):
 		self.example = example
 		self.moment = moment
 	
-	def times_since_occurrence(self,event):
-		# moment - occurrence, so PAST occurrences are positive
-		differences = [self.moment-occurrence for occurrence in self.example.events[event]]
+	# PAST events positive, FUTURE events negative
+	def temporal_distance_from_occurrence(self,event):
+		differences = []
+		for (start_time,end_time) in self.example.events[event]:
+			# if event is in the past
+			if self.moment > end_time:
+				differences.append(self.moment - end_time)
+			# if event is in the future
+			if self.moment < start_time:
+				differences.append(self.moment - start_time)
+			# else event is present
+			else:
+				differences.append(self.moment-self.moment) # zero but preserves typing
 		
-		# convert timedeltas to day integers so that absolute and relative times can both be used
 		if type(self.moment) == datetime.timedelta:
 			differences = [x.days for x in differences]
-			
-		return [float(x) for x in differences if x >= 0.0]
+		
+		return [float(x) for x in differences]
+	
+	def times_since_occurrence(self,event):
+		differences = temporal_distance_from_occurrence(event)
+		return [x for x in differences if x >= 0.0]
 	
 	def times_until_occurrence(self,event):
-		# occurrence - moment, so FUTURE occurrences are positive
-		differences = [occurrence-self.moment for occurrence in self.example.events[event]]
-		
-		# convert timedeltas to day integers so that absolute and relative times can both be used
-		if type(self.moment) == datetime.timedelta:
-			differences = [x.days for x in differences]
-		
-		return [float(x) for x in differences if x >= 0.0]
+		differences = temporal_distance_from_occurrence(event)
+		differences = [-x for x in differences]
+		return [x for x in differences if x >= 0.0]
 	
 	def compute_label_and_weight(self,classlabel_feature):
 		(self.label,self.weight) = classlabel_feature.query(self)
