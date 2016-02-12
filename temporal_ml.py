@@ -73,6 +73,80 @@ class Feature_LastOccurrence(Feature):
 				result = min(result,time_since)
 		return result
 
+class Feature_2ndLastOccurrence(Feature):
+	
+	def __init__(self,feature_name,*event_names):
+		Feature.__init__(self,feature_name,"2ndLastOccurrence")
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		result = float("Inf")
+		all_times_since = []
+		for event in self.event_names:
+			times_since = example_moment.times_since_occurrence(event)
+			all_times_since += times_since
+		if len(all_times_since) >= 2:
+			all_times_since.remove(min(all_times_since))
+			result = min(all_times_since)
+		return result
+
+
+# "salience" here being a measure that combines event frequency and recency via exponential decay
+
+class Feature_Salience(Feature):
+	
+	def __init__(self,feature_name,decay_rate,*event_names_and_weights):
+		Feature.__init__(self,feature_name,"Salience")
+		self.decay_rate = decay_rate
+		self.event_names = []
+		self.event_weights = []
+		while len(event_names_and_weights) > 0:
+			self.event_names.append(event_names_and_weights.pop(0))
+			self.event_weights.append(float(event_names_and_weights.pop(0)))
+	
+	def query(self,example_moment):
+		time_weight_pairs = []
+		
+		for i in range(len(self.event_names)):
+			event_name = self.event_names[i]
+			event_weight = self.event_weights[i]
+			for occurrence in example_moment.times_since_occurrence(event_name):
+				time_weight_pairs.append((occurrence,event_weight))
+		
+		sorted_time_weight_pairs = sorted(time_weight_pairs,reverse=True)
+		
+		weights = [x[1] for x in sorted_time_weight_pairs]
+		time_gaps = []
+		i = 1
+		while i < len(sorted_time_weight_pairs):
+			time_gaps.append(sorted_time_weight_pairs[i-1][0] - sorted_time_weight_pairs[i][0])
+		if len(sorted_time_weight_pairs) > 0:
+			time_gaps.append(sorted_time_weight_pairs[-1][0])
+		
+		salience = 0.0
+		for i in range(len(weights)):
+			
+			# additive increase
+			salience += weights[i]
+			
+			# exponential decay
+			multiplicative_factor = (1 - self.decay_rate) ** time_gaps[i]
+			salience *= multiplicative_factor
+		
+		return salience
+
+class Feature_OccurrenceCount(Feature):
+	
+	def __init__(self,feature_name,*event_names):
+		Feature.__init__(self,feature_name,"OccurrenceCount")
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		all_count = 0
+		for event in self.event_names:
+			count += len(example_moment.times_since_occurrence(event))
+		return all_count
+
 # obviously, this feature type should only be used for example-moments with
 # date or datetime moments
 class Feature_MonthDay(Feature):
@@ -86,19 +160,6 @@ class Feature_MonthDay(Feature):
 		month = example_moment.moment.month
 		day = example_moment.moment.day
 		return self.monthday_to_value[(month,day)]
-
-class Feature_NextOccurrence(Feature):
-
-	def __init__(self,feature_name,*event_names):
-		Feature.__init__(self,feature_name,"NextOccurrence")
-		self.event_names = event_names
-	
-	def query(self,example_moment):
-		result = float("Inf")
-		for event in self.event_names:
-			for time_until in example_moment.times_until_occurrence(event):
-				result = min(result,time_until)
-		return result
 
 # querying a ClassLabel Feature returns a (label,weight) pair, label in {+,-}, weight 0.0+
 # ClassLabel features are unweighted (all weights 1.0) unless otherwise specified
