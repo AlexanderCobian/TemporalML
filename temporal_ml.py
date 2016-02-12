@@ -100,6 +100,7 @@ class Feature_Salience(Feature):
 		self.decay_rate = decay_rate
 		self.event_names = []
 		self.event_weights = []
+		event_names_and_weights = list(event_names_and_weights)
 		while len(event_names_and_weights) > 0:
 			self.event_names.append(event_names_and_weights.pop(0))
 			self.event_weights.append(float(event_names_and_weights.pop(0)))
@@ -120,6 +121,7 @@ class Feature_Salience(Feature):
 		i = 1
 		while i < len(sorted_time_weight_pairs):
 			time_gaps.append(sorted_time_weight_pairs[i-1][0] - sorted_time_weight_pairs[i][0])
+			i += 1
 		if len(sorted_time_weight_pairs) > 0:
 			time_gaps.append(sorted_time_weight_pairs[-1][0])
 		
@@ -144,7 +146,7 @@ class Feature_OccurrenceCount(Feature):
 	def query(self,example_moment):
 		all_count = 0
 		for event in self.event_names:
-			count += len(example_moment.times_since_occurrence(event))
+			all_count += len(example_moment.times_since_occurrence(event))
 		return all_count
 
 # obviously, this feature type should only be used for example-moments with
@@ -193,12 +195,12 @@ class Feature_ClassLabel_ImpendingEvent_LinearWeight(Feature):
 		for event in self.event_names:
 			for time_until in example_moment.times_until_occurrence(event):
 				next_occurrence = min(next_occurrence,time_until)
-		if next_occurrence >= zero_weight_threshold * 2:
+		if next_occurrence >= self.zero_weight_threshold * 2:
 			return ("-",1.0)
-		elif next_occurrence >= zero_weight_threshold:
-			weight = (next_occurrence-zero_weight_threshold)/(zero_weight_threshold)
+		elif next_occurrence >= self.zero_weight_threshold:
+			weight = (next_occurrence-self.zero_weight_threshold)/(self.zero_weight_threshold)
 			return ("-",weight)
 		else:
-			weight = (zero_weight_threshold-next_occurrence)/(zero_weight_threshold)
+			weight = (self.zero_weight_threshold-next_occurrence)/(self.zero_weight_threshold)
 			return ("+",weight)
 		

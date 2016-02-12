@@ -23,7 +23,14 @@ last_ab = Feature_LastOccurrence("Last A/B","A","B")
 last_ac = Feature_LastOccurrence("Last A/C","A","C")
 last_bc = Feature_LastOccurrence("Last B/C","B","C")
 
-next_a = Feature_NextOccurrence("Next A","A")
+second_last_a = Feature_2ndLastOccurrence("2nd Last A","A")
+
+salience_b = Feature_Salience("Salience B",.01,"B",1.0)
+
+count_a = Feature_OccurrenceCount("Count A","A")
+
+impending_a = Feature_ClassLabel_ImpendingEvent("Impending A",2,"A")
+impending_weighted_a = Feature_ClassLabel_ImpendingEvent_LinearWeight("Impending Weighted A",1,"A")
 
 tick_0 = example.create_example_moment(0)
 tick_1 = example.create_example_moment(1)
