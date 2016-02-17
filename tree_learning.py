@@ -1,5 +1,6 @@
 
 import random
+import math
 
 # epsilon value prevents splitting when splitting would only reduce entropy by
 # an amount explainable by rounding error
@@ -52,7 +53,7 @@ class Tree_Node(object):
 	
 	def tree_summary(self):
 		if self.leaf:
-			return "{0} | Leaf: {1}\n".format(self.path,self.prediction)
+			return "{0} | Leaf: {1}\n".format(self.path,self.prediction())
 		else:
 			tree_text = "{0} | {1} <= {2}\n".format(self.path,self.split_feature.feature_name,self.split_value)
 			tree_text += self.left_child.tree_summary()
@@ -61,7 +62,7 @@ class Tree_Node(object):
 
 # verbosity levels:
 # 	1: print depth levels as they are reached
-# 	2: print node paths when they are constructed
+# 	2: print node paths and weight amounts when they are constructed
 # 	3: print features as they are considered for splits
 def build_classification_tree(features,instances,max_depth=-1,candidate_feature_proportion=.2,minimum_node_weight=0.0,verbosity=0):
 	
@@ -73,20 +74,21 @@ def build_classification_tree(features,instances,max_depth=-1,candidate_feature_
 	while worklist:
 		
 		(current_node, current_instances) = worklist.pop(0)
-		
+				
 		if verbosity >= 1 and current_node.depth() > max_depth_reached:
 			max_depth_reached = current_node.depth()
 			print "Building depth {0}...".format(current_node.depth())
-		if verbosity >= 2:
-			print "Building node {0}...".format(current_node.path)
 		
 		pos_weight = 0.0
 		neg_weight = 0.0
-		for instance in instances:
+		for instance in current_instances:
 			if instance.label == "+":
 				pos_weight += instance.weight
 			else:
 				neg_weight += instance.weight
+		
+		if verbosity >= 2:
+			print "Building node {0}, +{1}, -{2}...".format(current_node.path,pos_weight,neg_weight)
 		
 		# leaf because max depth? process and continue
 		if current_node.depth() == max_depth:
@@ -95,7 +97,7 @@ def build_classification_tree(features,instances,max_depth=-1,candidate_feature_
 			current_node.process_leaf(pos_weight,neg_weight)
 			continue
 		
-		num_candidate_features = min(len(features),1+candidate_feature_proportion*len(features))
+		num_candidate_features = min(len(features),int(1+candidate_feature_proportion*len(features)))
 		candidate_features = random.sample(features,num_candidate_features)
 		
 		best_split_entropy = entropy(pos_weight,neg_weight) - ENTROPY_EPSILON
@@ -113,12 +115,12 @@ def build_classification_tree(features,instances,max_depth=-1,candidate_feature_
 			pos_right_weight = pos_weight
 			neg_right_weight = neg_weight
 			
-			sorted_instances = sorted(instances,key=lambda x: candidate_feature.query(x))
+			sorted_instances = sorted(current_instances,key=lambda x: candidate_feature.query(x))
 			si_index = 0
 			while si_index < len(sorted_instances):
 			
 				next_value = candidate_feature.query(sorted_instances[si_index])
-				if sorted_instances[si_index].label = "+":
+				if sorted_instances[si_index].label == "+":
 					pos_right_weight -= sorted_instances[si_index].weight
 					pos_left_weight += sorted_instances[si_index].weight
 				else:
@@ -128,7 +130,7 @@ def build_classification_tree(features,instances,max_depth=-1,candidate_feature_
 				
 				# include any additional batch elements
 				while si_index < len(sorted_instances) and candidate_feature.query(sorted_instances[si_index]) == next_value:
-					if sorted_instances[si_index].label = "+":
+					if sorted_instances[si_index].label == "+":
 						pos_right_weight -= sorted_instances[si_index].weight
 						pos_left_weight += sorted_instances[si_index].weight
 					else:
