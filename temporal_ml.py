@@ -26,6 +26,10 @@ class Example_Moment(object):
 	
 	# PAST events positive, FUTURE events negative
 	def temporal_distance_from_occurrence(self,event):
+		
+		if event not in self.example.events:
+			return []
+		
 		differences = []
 		for (start_time,end_time) in self.example.events[event]:
 			# if event is in the past
