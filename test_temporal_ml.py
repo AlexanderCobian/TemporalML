@@ -25,7 +25,7 @@ last_bc = Feature_LastOccurrence("Last B/C","B","C")
 
 second_last_a = Feature_2ndLastOccurrence("2nd Last A","A")
 
-salience_b = Feature_Salience("Salience B",.01,"B",1.0)
+salience_b = Feature_Intensity("Intensity B",.01,"B",1.0)
 
 count_a = Feature_OccurrenceCount("Count A","A")
 

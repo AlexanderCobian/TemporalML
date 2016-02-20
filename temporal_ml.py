@@ -108,12 +108,12 @@ class Feature_2ndLastOccurrence(Feature):
 		return result
 
 
-# "salience" here being a measure that combines event frequency and recency via exponential decay
+# "intensity" here being a measure that combines event frequency and recency via exponential decay
 
-class Feature_Salience(Feature):
+class Feature_Intensity(Feature):
 	
 	def __init__(self,feature_name,decay_rate,*event_names_and_weights):
-		Feature.__init__(self,feature_name,"Salience")
+		Feature.__init__(self,feature_name,"Intensity")
 		self.decay_rate = decay_rate
 		self.event_names = []
 		self.event_weights = []
@@ -142,17 +142,17 @@ class Feature_Salience(Feature):
 		if len(sorted_time_weight_pairs) > 0:
 			time_gaps.append(sorted_time_weight_pairs[-1][0])
 		
-		salience = 0.0
+		intensity = 0.0
 		for i in range(len(weights)):
 			
 			# additive increase
-			salience += weights[i]
+			intensity += weights[i]
 			
 			# exponential decay
 			multiplicative_factor = (1 - self.decay_rate) ** time_gaps[i]
-			salience *= multiplicative_factor
+			intensity *= multiplicative_factor
 		
-		return salience
+		return intensity
 
 class Feature_OccurrenceCount(Feature):
 	
