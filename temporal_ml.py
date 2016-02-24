@@ -66,7 +66,7 @@ class Feature(object):
 		self.feature_type = feature_type
 	
 	def __repr__(self):
-		return "{0}::{1}".format(self.feature_type,self.feature_name)
+		return "{0} [[{1}]]".format(self.feature_name,self.feature_type)
 
 class Feature_Static(Feature):
 
