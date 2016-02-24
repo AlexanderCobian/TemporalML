@@ -181,7 +181,7 @@ class Feature_MonthDay(Feature):
 	# monthday_to_value should be a dict mapping tuples to floats
 	def __init__(self,feature_name,monthday_to_value):
 		Feature.__init__(self,feature_name,"Month/Day")
-		self.monthday_to_value
+		self.monthday_to_value = monthday_to_value
 	
 	def query(self,example_moment):
 		month = example_moment.moment.month
