@@ -36,7 +36,7 @@ class Example_Moment(object):
 			if self.moment > end_time:
 				differences.append(self.moment - end_time)
 			# if event is in the future
-			if self.moment < start_time:
+			elif self.moment < start_time:
 				differences.append(self.moment - start_time)
 			# else event is present
 			else:
@@ -80,7 +80,7 @@ class Feature_Static(Feature):
 class Feature_LastOccurrence(Feature):
 	
 	def __init__(self,feature_name,*event_names):
-		Feature.__init__(self,feature_name,"LastOccurrence")
+		Feature.__init__(self,feature_name,"Last Occurrence")
 		self.event_names = event_names
 	
 	def query(self,example_moment):
@@ -93,7 +93,7 @@ class Feature_LastOccurrence(Feature):
 class Feature_2ndLastOccurrence(Feature):
 	
 	def __init__(self,feature_name,*event_names):
-		Feature.__init__(self,feature_name,"2ndLastOccurrence")
+		Feature.__init__(self,feature_name,"2nd Last Occurrence")
 		self.event_names = event_names
 	
 	def query(self,example_moment):
@@ -154,17 +154,25 @@ class Feature_Intensity(Feature):
 		
 		return intensity
 
-class Feature_OccurrenceCount(Feature):
+class Feature_Frequency(Feature):
 	
-	def __init__(self,feature_name,*event_names):
-		Feature.__init__(self,feature_name,"OccurrenceCount")
+	def __init__(self,feature_name,record_start_time,*event_names):
+		Feature.__init__(self,feature_name,"Frequency")
+		self.record_start_time = record_start_time
 		self.event_names = event_names
 	
 	def query(self,example_moment):
-		all_count = 0
+		all_count = 0.0
 		for event in self.event_names:
 			all_count += len(example_moment.times_since_occurrence(event))
-		return all_count
+		
+		time_on_record = example_moment.moment - self.record_start_time
+		if type(time_on_record) == datetime.timedelta:
+			time_on_record = time_on_record.days
+		if time_on_record == 0.0:
+			time_on_record = 0.00000001
+		
+		return all_count/time_on_record
 
 # obviously, this feature type should only be used for example-moments with
 # date or datetime moments
@@ -172,7 +180,7 @@ class Feature_MonthDay(Feature):
 	
 	# monthday_to_value should be a dict mapping tuples to floats
 	def __init__(self,feature_name,monthday_to_value):
-		Feature.__init__(self,feature_name,"Monthday")
+		Feature.__init__(self,feature_name,"Month/Day")
 		self.monthday_to_value
 	
 	def query(self,example_moment):
@@ -180,13 +188,30 @@ class Feature_MonthDay(Feature):
 		day = example_moment.moment.day
 		return self.monthday_to_value[(month,day)]
 
+class Feature_TemporalWindow(Feature):
+
+	def __init__(self,feature_name,window_size,*event_names):
+		Feature.__init__(self,feature_name,"Temporal Window")
+		self.window_size = window_size
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		last_occurrence = float("Inf")
+		for event in self.event_names:
+			for time_since in example_moment.times_since_occurrence(event):
+				last_occurrence = min(last_occurrence,time_since)
+		if last_occurrence <= self.window_size:
+			return 1.0
+		else:
+			return 0.0
+
 # querying a ClassLabel Feature returns a (label,weight) pair, label in {+,-}, weight 0.0+
 # ClassLabel features are unweighted (all weights 1.0) unless otherwise specified
 
 class Feature_ClassLabel_ImpendingEvent(Feature):
 
 	def __init__(self,feature_name,future_threshold,*event_names):
-		Feature.__init__(self,feature_name,"ClassLabel_ImpendingEvent")
+		Feature.__init__(self,feature_name,"Class Label, Impending Event")
 		self.future_threshold = future_threshold
 		self.event_names = event_names
 	
@@ -203,7 +228,7 @@ class Feature_ClassLabel_ImpendingEvent(Feature):
 class Feature_ClassLabel_ImpendingEvent_LinearWeight(Feature):
 
 	def __init__(self,feature_name,zero_weight_threshold,*event_names):
-		Feature.__init__(self,feature_name,"ClassLabel_ImpendingEvent_LinearWeight")
+		Feature.__init__(self,feature_name,"Class Label, Impending Event, Linear Weight")
 		self.zero_weight_threshold = zero_weight_threshold
 		self.event_names = event_names
 	
