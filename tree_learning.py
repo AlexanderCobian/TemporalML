@@ -51,10 +51,13 @@ class Tree_Node(object):
 			else:
 				return self.right_child.query(query_instance)
 	
-	def tree_summary(self):
+	def tree_summary(self,max_depth=10):
 		if self.leaf:
 			return "{0} | Leaf: {1}\n".format(self.path,self.prediction())
 		else:
+			if self.depth() >= max_depth:
+				tree_text = "{0} | ...\n".format(self.path)
+				return tree_text
 			tree_text = "{0} | {1} <= {2}\n".format(self.path,self.split_feature.feature_name,self.split_value)
 			tree_text += self.left_child.tree_summary()
 			tree_text += self.right_child.tree_summary()

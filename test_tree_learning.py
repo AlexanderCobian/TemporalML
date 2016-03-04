@@ -39,4 +39,4 @@ for i in range(1,21):
 			feature_value = 1.0-feature_value
 		example.features[feature_name] = feature_value
 
-print build_classification_tree(features,examples,verbosity=1).tree_summary()
+print build_classification_tree(features,examples,verbosity=1).tree_summary(max_depth=5)
