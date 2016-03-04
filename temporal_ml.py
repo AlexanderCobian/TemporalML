@@ -191,7 +191,7 @@ class Feature_MonthDay(Feature):
 class Feature_TemporalWindow(Feature):
 
 	def __init__(self,feature_name,window_size,*event_names):
-		Feature.__init__(self,feature_name,"Temporal Window")
+		Feature.__init__(self,feature_name,"Temporal Window ({0})".format(window_size))
 		self.window_size = window_size
 		self.event_names = event_names
 	
