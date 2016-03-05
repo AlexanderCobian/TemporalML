@@ -113,7 +113,7 @@ class Feature_2ndLastOccurrence(Feature):
 class Feature_Intensity(Feature):
 	
 	def __init__(self,feature_name,decay_rate,*event_names_and_weights):
-		Feature.__init__(self,feature_name,"Intensity")
+		Feature.__init__(self,feature_name,"Intensity (decay rate={0})".format(decay_rate))
 		self.decay_rate = decay_rate
 		self.event_names = []
 		self.event_weights = []
