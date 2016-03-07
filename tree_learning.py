@@ -67,7 +67,11 @@ class Tree_Node(object):
 # 	1: print depth levels as they are reached
 # 	2: print node paths and weight amounts when they are constructed
 # 	3: print features as they are considered for splits
-def build_classification_tree(features,instances,max_depth=-1,candidate_feature_proportion=.2,minimum_node_weight=0.0,verbosity=0):
+def build_classification_tree(features,instances,max_depth=-1,candidate_feature_proportion=.2,minimum_node_weight=0.0,verbosity=0,random_seed=None):
+	
+	if random_seed != None:
+		random.seed(random_seed)
+		
 	
 	root_node = Tree_Node()
 	worklist = [(root_node,instances)]
