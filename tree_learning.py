@@ -58,7 +58,7 @@ class Tree_Node(object):
 			if self.depth() >= max_depth:
 				tree_text = "{0} | ...\n".format(self.path)
 				return tree_text
-			tree_text = "{0} | {1} <= {2}\n".format(self.path,self.split_feature.feature_name,self.split_value)
+			tree_text = "{0} | {1} <= {2}\n".format(self.path,self.split_feature,self.split_value)
 			tree_text += self.left_child.tree_summary()
 			tree_text += self.right_child.tree_summary()
 			return tree_text
