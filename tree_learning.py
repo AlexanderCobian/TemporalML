@@ -59,8 +59,8 @@ class Tree_Node(object):
 				tree_text = "{0} | ...\n".format(self.path)
 				return tree_text
 			tree_text = "{0} | {1} <= {2}\n".format(self.path,self.split_feature,self.split_value)
-			tree_text += self.left_child.tree_summary()
-			tree_text += self.right_child.tree_summary()
+			tree_text += self.left_child.tree_summary(max_depth)
+			tree_text += self.right_child.tree_summary(max_depth)
 			return tree_text
 
 # verbosity levels:
