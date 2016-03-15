@@ -44,7 +44,7 @@ class Tree_Node(object):
 	
 	def query(self,query_instance):
 		if self.leaf:
-			return self.prediction
+			return self.prediction()
 		else:
 			if self.split_feature.query(query_instance) <= self.split_value:
 				return self.left_child.query(query_instance)
