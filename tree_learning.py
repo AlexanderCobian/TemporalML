@@ -164,8 +164,8 @@ def build_classification_tree(features,instances,max_depth=-1,candidate_feature_
 			continue
 		
 		# leaf because split creates small children? process and continue
-		best_split_left_weight = sum([best_split_feature.query(x) for x in best_split_left_instances])
-		best_split_right_weight = sum([best_split_feature.query(x) for x in best_split_right_instances])
+		best_split_left_weight = sum([x.weight for x in best_split_left_instances])
+		best_split_right_weight = sum([x.weight for x in best_split_right_instances])
 		if best_split_left_weight < minimum_node_weight or best_split_right_weight < minimum_node_weight:
 			if verbosity >= 2:
 				print "{0}: Leaf node, best split creates overly light child nodes".format(current_node.path)
