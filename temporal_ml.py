@@ -188,6 +188,14 @@ class Feature_MonthDay(Feature):
 		day = example_moment.moment.day
 		return self.monthday_to_value[(month,day)]
 
+class Feature_Moment(Feature):
+	
+	def __init__(self):
+		Feature.__init__(self,"Moment","Moment")
+	
+	def query(self,example_moment):
+		return example_moment.moment
+
 class Feature_TemporalWindow(Feature):
 
 	def __init__(self,feature_name,window_size,*event_names):

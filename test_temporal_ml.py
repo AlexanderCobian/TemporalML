@@ -34,6 +34,8 @@ window_a = Feature_TemporalWindow("Window A (2)",2,"A")
 impending_a = Feature_ClassLabel_ImpendingEvent("Impending A",2,"A")
 impending_weighted_a = Feature_ClassLabel_ImpendingEvent_LinearWeight("Impending Weighted A",1,"A")
 
+moment = Feature_Moment()
+
 tick_0 = example.create_example_moment(0)
 tick_1 = example.create_example_moment(1)
 tick_2 = example.create_example_moment(2)
