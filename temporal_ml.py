@@ -190,8 +190,8 @@ class Feature_MonthDay(Feature):
 
 class Feature_Moment(Feature):
 	
-	def __init__(self):
-		Feature.__init__(self,"Moment","Moment")
+	def __init__(self,feature_name):
+		Feature.__init__(self,feature_name,"Moment")
 	
 	def query(self,example_moment):
 		return example_moment.moment
