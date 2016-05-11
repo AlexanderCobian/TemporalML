@@ -1,5 +1,6 @@
 
 import datetime
+import sys
 
 class Example(object):
 
@@ -170,9 +171,25 @@ class Feature_Frequency(Feature):
 		if type(time_on_record) == datetime.timedelta:
 			time_on_record = time_on_record.days
 		if time_on_record == 0.0:
-			time_on_record = 0.00000001
+			time_on_record = sys.float_info.min
 		
 		return all_count/time_on_record
+
+class Feature_Recent_Frequency(Feature):
+	
+	def __init__(self,feature_name,window_size,*event_names):
+		Feature.__init__(self,feature_name,"Recent Frequency ({0})".format(window_size))
+		self.window_size = window_size
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		all_count = 0.0
+		for event in self.event_names:
+			occurrences = example_moment.times_since_occurrence(event)
+			recent_occurrences = [x for x in occurrences if x < self.window_size]
+			all_count += len(recent_occurrences)
+		
+		return all_count/self.window_size
 
 # obviously, this feature type should only be used for example-moments with
 # date or datetime moments
