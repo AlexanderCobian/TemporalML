@@ -91,6 +91,19 @@ class Feature_LastOccurrence(Feature):
 				result = min(result,time_since)
 		return result
 
+class Feature_NextOccurrence(Feature):
+	
+	def __init__(self,feature_name,*event_names):
+		Feature.__init__(self,feature_name,"Next Occurrence")
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		result = float("Inf")
+		for event in self.event_names:
+			for time_until in example_moment.times_until_occurrence(event):
+				result = min(result,time_until)
+		return result
+
 class Feature_2ndLastOccurrence(Feature):
 	
 	def __init__(self,feature_name,*event_names):
@@ -271,3 +284,40 @@ class Feature_ClassLabel_ImpendingEvent_LinearWeight(Feature):
 			weight = (self.zero_weight_threshold-next_occurrence)/(self.zero_weight_threshold)
 			return ("+",weight)
 		
+class Feature_ClassLabel_RecentEvent(Feature):
+	
+	def __init__(self,feature_name,past_threshold,*event_names):
+		Feature.__init__(self,feature_name,"Class Label, Recent Event")
+		self.past_threshold = past_threshold
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		last_occurrence = float("Inf")
+		for event in self.event_names:
+			for time_since in example_moment.times_since_occurrence(event):
+				last_occurrence = min(last_occurrence,time_since)
+		if last_occurrence <= self.past_threshold:
+			return ("+",1.0)
+		else:
+			return ("-",1.0)
+
+class Feature_ClassLabel_RecentEvent_LinearWeight(Feature):
+
+	def __init__(self,feature_name,zero_weight_threshold,*event_names):
+		Feature.__init__(self,feature_name,"Class Label, Recent Event, Linear Weight")
+		self.zero_weight_threshold = zero_weight_threshold
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		last_occurrence = float("Inf")
+		for event in self.event_names:
+			for time_since in example_moment.times_since_occurrence(event):
+				last_occurrence = min(last_occurrence,time_since)
+		if last_occurrence >= self.zero_weight_threshold * 2:
+			return ("-",1.0)
+		elif last_occurrence >= self.zero_weight_threshold:
+			weight = (last_occurrence-self.zero_weight_threshold)/(self.zero_weight_threshold)
+			return ("-",weight)
+		else:
+			weight = (self.zero_weight_threshold-last_occurrence)/(self.zero_weight_threshold)
+			return ("+",weight)
