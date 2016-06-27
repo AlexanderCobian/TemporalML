@@ -78,6 +78,17 @@ class Feature_Static(Feature):
 	def query(self,example_moment):
 		return example_moment.example.static_values[self.static_name]
 
+class Feature_Arbitrary(Feature):
+
+	def __init__(self,feature_name,id_moment_pairs,values):
+		Feature.__init__(self,feature_name,"Arbitrary")
+		self.value_mapping = dict()
+		for i in range(len(id_moment_pairs)):
+			self.value_mapping[id_moment_pairs[i]] = values[i]
+	
+	def query(self,example_moment):
+		return self.value_mapping[(example_moment.example.id,example_moment.moment)]
+
 class Feature_LastOccurrence(Feature):
 	
 	def __init__(self,feature_name,*event_names):

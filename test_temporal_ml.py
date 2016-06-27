@@ -41,6 +41,10 @@ impending_weighted_a = Feature_ClassLabel_ImpendingEvent_LinearWeight("Impending
 recent_a = Feature_ClassLabel_RecentEvent("Recent A",2,"A")
 recent_weighted_a = Feature_ClassLabel_RecentEvent_LinearWeight("Recent Weighted A",1,"A")
 
+id_moment_pairs = [("test_example",x) for x in range(10)]
+arbitrary_values = [x%3 for x in range(10)]
+arbitrary = Feature_Arbitrary("Tick Mod 3",id_moment_pairs,arbitrary_values)
+
 moment = Feature_Moment("Moment")
 
 tick_0 = example.create_example_moment(0)
