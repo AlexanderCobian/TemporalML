@@ -68,6 +68,9 @@ class Feature(object):
 	
 	def __repr__(self):
 		return "{0} [[{1}]]".format(self.feature_name,self.feature_type)
+	
+	def __eq__(self,other):
+		return (self.feature_name == other.feature_name) and (self.feature_type == other.feature_type)
 
 class Feature_Static(Feature):
 
