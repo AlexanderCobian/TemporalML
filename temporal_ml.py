@@ -71,6 +71,9 @@ class Feature(object):
 	
 	def __eq__(self,other):
 		return (self.feature_name == other.feature_name) and (self.feature_type == other.feature_type)
+	
+	def __hash__(self):
+		return hash(self.feature_name) ^ hash(self.feature_type)
 
 class Feature_Static(Feature):
 
