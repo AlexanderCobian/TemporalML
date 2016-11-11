@@ -338,3 +338,15 @@ class Feature_ClassLabel_RecentEvent_LinearWeight(Feature):
 		else:
 			weight = (self.zero_weight_threshold-last_occurrence)/(self.zero_weight_threshold)
 			return ("+",weight)
+
+class Feature_ClassLabel_Arbitrary(Feature):
+
+	def __init__(self,feature_name,id_moment_pairs,labels,weights):
+		Feature.__init__(self,feature_name,"Class Label, Arbitrary")
+		self.label_mapping = dict()
+		for i in range(len(id_moment_pairs)):
+			id_moment_pair = id_moment_pairs[i]
+			self.label_mapping[id_moment_pair] = (labels[i],weights[i])
+	
+	def query(self,example_moment):
+		return self.label_mapping[(example_moment.example.id,example_moment.moment)]

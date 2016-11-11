@@ -43,7 +43,15 @@ recent_weighted_a = Feature_ClassLabel_RecentEvent_LinearWeight("Recent Weighted
 
 id_moment_pairs = [("test_example",x) for x in range(10)]
 arbitrary_values = [x%3 for x in range(10)]
+arbitrary_labels = []
+for x in arbitrary_values:
+	if x == 0:
+		arbitrary_labels.append("+")
+	else:
+		arbitrary_labels.append("-")
+arbitrary_weights = [0.1*x for x in range(10)]
 arbitrary = Feature_Arbitrary("Tick Mod 3",id_moment_pairs,arbitrary_values)
+arbitrary_labels = Feature_ClassLabel_Arbitrary("Tick Mod 3, ascending weight",id_moment_pairs,arbitrary_labels,arbitrary_weights)
 
 moment = Feature_Moment("Moment")
 
