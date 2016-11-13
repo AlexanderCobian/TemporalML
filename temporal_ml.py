@@ -70,7 +70,10 @@ class Feature(object):
 		return "{0} [[{1}]]".format(self.feature_name,self.feature_type)
 	
 	def __eq__(self,other):
-		return (self.feature_name == other.feature_name) and (self.feature_type == other.feature_type)
+		try:
+			return (self.feature_name == other.feature_name) and (self.feature_type == other.feature_type)
+		except AttributeError:
+			return False
 	
 	def __hash__(self):
 		return hash(self.feature_name) ^ hash(self.feature_type)
