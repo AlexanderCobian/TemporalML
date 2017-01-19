@@ -23,6 +23,10 @@ last_ab = Feature_LastOccurrence("Last A/B","A","B")
 last_ac = Feature_LastOccurrence("Last A/C","A","C")
 last_bc = Feature_LastOccurrence("Last B/C","B","C")
 
+normalized_last_a = FeatureWrapper_Normalize_MaxSignalZero(last_a,2.0)
+
+inverted_normalized_last_a = FeatureWrapper_Inverse(normalized_last_a,"Inverted Normalized Last A")
+
 next_a = Feature_NextOccurrence("Next A","A")
 
 second_last_a = Feature_2ndLastOccurrence("2nd Last A","A")
@@ -30,6 +34,8 @@ second_last_a = Feature_2ndLastOccurrence("2nd Last A","A")
 salience_b = Feature_Intensity("Intensity B",.01,"B",1.0)
 
 freq_a = Feature_Frequency("Freq A",0,"A")
+
+normalized_freq_a = FeatureWrapper_Normalize_MaxSignalInf(freq_a,2.0)
 
 recent_freq_a = Feature_Recent_Frequency("Recent Freq A",3,"A")
 

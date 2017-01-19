@@ -263,6 +263,48 @@ class Feature_TemporalWindow(Feature):
 		else:
 			return 0.0
 
+class FeatureWrapper_Normalize_MaxSignalZero(Feature):
+
+	def __init__(self,inner_feature,median):
+		Feature.__init__(self,inner_feature.feature_name + " (normalized)","Normalized Feature (Max Signal=0.0) - " + inner_feature.feature_type)
+		self.inner_feature = inner_feature
+		self.alpha = 1.0/median
+	
+	def query(self,example_moment):
+		inner_value = self.inner_feature.query(example_moment)
+		if inner_value == 0.0:
+			return 1.0
+		elif inner_value == float("Inf"):
+			return 0.0
+		else:
+			return 1.0/(1.0+(self.alpha*inner_value))
+
+class FeatureWrapper_Normalize_MaxSignalInf(Feature):
+
+	def __init__(self,inner_feature,median):
+		Feature.__init__(self,inner_feature.feature_name + " (normalized)","Normalized Feature (Max Signal=+Inf) - " + inner_feature.feature_type)
+		self.inner_feature = inner_feature
+		self.alpha = float(median)
+	
+	def query(self,example_moment):
+		inner_value = self.inner_feature.query(example_moment)
+		if inner_value == 0.0:
+			return 0.0
+		elif inner_value == float("Inf"):
+			return 1.0
+		else:
+			return inner_value/(inner_value+self.alpha)
+
+class FeatureWrapper_Inverse(Feature):
+	
+	def __init__(self,inner_feature,feature_name):
+		Feature.__init__(self,feature_name,inner_feature.feature_type + " (inverted)")
+		self.inner_feature = inner_feature
+	
+	def query(self,example_moment):
+		inner_value = self.inner_feature.query(example_moment)
+		return 1.0-inner_value
+
 # querying a ClassLabel Feature returns a (label,weight) pair, label in {+,-}, weight 0.0+
 # ClassLabel features are unweighted (all weights 1.0) unless otherwise specified
 
