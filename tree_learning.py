@@ -51,20 +51,20 @@ class Tree_Node(object):
 			if self.split_value == float("inf"):
 				if self.split_feature.query(query_instance) < float("inf"):
 					if verbosity >= 2:
-						print "{0} - {1}: Query {2} < {4}, LEFT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
+						print "{0} - {1}: Query {2} < {3}, LEFT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
 					return self.left_child.query(query_instance)
 				else:
 					if verbosity >= 2:
-						print "{0} - {1}: Query {2} < {4}, RIGHT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
+						print "{0} - {1}: Query {2} < {3}, RIGHT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
 					return self.right_child.query(query_instance)
 			else:
 				if self.split_feature.query(query_instance) <= self.split_value:
 					if verbosity >= 2:
-						print "{0} - {1}: Query {2} <= {4}, LEFT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
+						print "{0} - {1}: Query {2} <= {3}, LEFT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
 					return self.left_child.query(query_instance)
 				else:
 					if verbosity >= 2:
-						print "{0} - {1}: Query {2} <= {4}, RIGHT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
+						print "{0} - {1}: Query {2} <= {3}, RIGHT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
 					return self.right_child.query(query_instance)
 	
 	def tree_summary(self,max_depth=10):
