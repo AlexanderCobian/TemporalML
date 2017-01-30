@@ -42,14 +42,30 @@ class Tree_Node(object):
 		(pos_weight,neg_weight) = self.subtree_weight()
 		return pos_weight/(pos_weight+neg_weight)
 	
-	def query(self,query_instance):
+	def query(self,query_instance,verbosity=0):
 		if self.leaf:
+			if verbosity >= 1:
+				print "{0}: {1}".format(self.path,self.prediction())
 			return self.prediction()
 		else:
-			if self.split_feature.query(query_instance) <= self.split_value:
-				return self.left_child.query(query_instance)
+			if self.split_value == float("inf"):
+				if self.split_feature.query(query_instance) < float("inf"):
+					if verbosity >= 2:
+						print "{0} - {1}: Query {2} < {4}, LEFT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
+					return self.left_child.query(query_instance)
+				else:
+					if verbosity >= 2:
+						print "{0} - {1}: Query {2} < {4}, RIGHT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
+					return self.right_child.query(query_instance)
 			else:
-				return self.right_child.query(query_instance)
+				if self.split_feature.query(query_instance) <= self.split_value:
+					if verbosity >= 2:
+						print "{0} - {1}: Query {2} <= {4}, LEFT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
+					return self.left_child.query(query_instance)
+				else:
+					if verbosity >= 2:
+						print "{0} - {1}: Query {2} <= {4}, RIGHT".format(self.path,self.split_feature.feature_name,self.split_feature.query(query_instance),self.split_value)
+					return self.right_child.query(query_instance)
 	
 	def tree_summary(self,max_depth=10):
 		if self.leaf:
@@ -58,7 +74,10 @@ class Tree_Node(object):
 			if self.depth() >= max_depth:
 				tree_text = "{0} | ...\n".format(self.path)
 				return tree_text
-			tree_text = "{0} | {1} <= {2}\n".format(self.path,self.split_feature,self.split_value)
+			split_function_string = "<="
+			if self.split_value == float("inf"):
+				split_function_string = "<"
+			tree_text = "{0} | {1} {2} {3}\n".format(self.path,self.split_feature,split_function_string,self.split_value)
 			tree_text += self.left_child.tree_summary(max_depth)
 			tree_text += self.right_child.tree_summary(max_depth)
 			return tree_text
@@ -151,6 +170,8 @@ def build_classification_tree(features,instances,max_depth=-1,candidate_feature_
 					if new_entropy < best_split_entropy:
 						best_split_entropy = new_entropy
 						best_split_feature = candidate_feature
+						# BUG HERE!!!!!!!!!
+						# IF THE RIGHT-HAND VALUE IS INFINITE THIS IS HOSED
 						best_split_value = mean([next_value,candidate_feature.query(sorted_instances[si_index])])
 						best_split_left_instances = sorted_instances[:si_index]
 						best_split_right_instances = sorted_instances[si_index:]

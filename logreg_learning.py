@@ -12,9 +12,7 @@ class LogReg_Model:
 		for name in [x.feature_name for x in features]:
 			self.feature_weights[name] = 0.0
 	
-	def train(self,training_examples,tuning_examples,learning_rate = 0.01,learning_rate_decay_rate = 0.01):
-		
-		
+	def train(self,training_examples,tuning_examples,learning_rate = 0.1,learning_rate_decay_rate = 0.01):
 		
 		tuning_error_rates = [float("inf")]
 		tuning_error_rates.append(self.compute_average_error(tuning_examples))
@@ -28,13 +26,20 @@ class LogReg_Model:
 		
 		iteration_count = 0
 		
-		while tuning_error_rates[-1] < tuning_error_rates[-2]:
+		#while tuning_error_rates[-1] < tuning_error_rates[-2]:
+		while iteration_count < 100:
 			self.training_iteration(training_examples,current_learning_rate)
 			current_learning_rate = current_learning_rate * (1.0-learning_rate_decay_rate)
 			tuning_error_rates.append(self.compute_average_error(tuning_examples))
 			training_error_rates.append(self.compute_average_error(training_examples))
 			iteration_count += 1
 			print "{0}\t{1}\t{2}".format(iteration_count,training_error_rates[-1],tuning_error_rates[-1])
+		
+		final_features = [(x,self.feature_weights[x]) for x in self.feature_weights.keys()]
+		final_features.append(("Intercept",self.intercept_weight))
+		final_features.sort(key=lambda x: abs(x[1]),reverse=True)
+		for i in range(len(final_features)):
+			print "{0}\t{1}".format(final_features[i][1],final_features[i][0])
 		
 	def training_iteration(self,training_examples,iteration_learning_rate):
 		
