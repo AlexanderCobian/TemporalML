@@ -275,7 +275,7 @@ class Feature_TwoSidedTemporalWindow(Feature):
 		event_present = False
 		for event in self.event_names:
 			for time_since in example_moment.times_since_occurrence(event):
-				if time_since >= self.window_min and time_since <= self.window_max:
+				if time_since >= self.window_min and time_since < self.window_max:
 					event_present = True
 		if event_present:
 			return 1.0
