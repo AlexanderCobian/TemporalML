@@ -41,6 +41,8 @@ recent_freq_a = Feature_Recent_Frequency("Recent Freq A",3,"A")
 
 window_a = Feature_TemporalWindow("Window A (2)",2,"A")
 
+two_sided_window_a = Feature_TwoSidedTemporalWindow("Two Sided Window A (2-3)",2,3,"A")
+
 impending_a = Feature_ClassLabel_ImpendingEvent("Impending A",2,"A")
 impending_weighted_a = Feature_ClassLabel_ImpendingEvent_LinearWeight("Impending Weighted A",1,"A")
 

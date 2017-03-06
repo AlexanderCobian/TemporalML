@@ -263,6 +263,25 @@ class Feature_TemporalWindow(Feature):
 		else:
 			return 0.0
 
+class Feature_TwoSidedTemporalWindow(Feature):
+
+	def __init__(self,feature_name,window_min,window_max,*event_names):
+		Feature.__init__(self,feature_name,"Two-Sided Temporal Window ({0}-{1})".format(window_min,window_max))
+		self.window_min = window_min
+		self.window_max = window_max
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		event_present = False
+		for event in self.event_names:
+			for time_since in example_moment.times_since_occurrence(event):
+				if time_since >= self.window_min and time_since <= self.window_max:
+					event_present = True
+		if event_present:
+			return 1.0
+		else:
+			return 0.0
+
 class FeatureWrapper_Normalize_MaxSignalZero(Feature):
 
 	def __init__(self,inner_feature,median):
