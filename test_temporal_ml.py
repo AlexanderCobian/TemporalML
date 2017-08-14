@@ -35,6 +35,8 @@ salience_b = Feature_Intensity("Intensity B",.01,"B",1.0)
 
 freq_a = Feature_Frequency("Freq A",0,"A")
 
+count_a = Feature_Count("Count A","A")
+
 normalized_freq_a = FeatureWrapper_Normalize_MaxSignalInf(freq_a,2.0)
 
 recent_freq_a = Feature_Recent_Frequency("Recent Freq A",3,"A")

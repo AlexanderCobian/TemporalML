@@ -224,6 +224,19 @@ class Feature_Recent_Frequency(Feature):
 		
 		return all_count/self.window_size
 
+class Feature_Count(Feature):
+	
+	def __init__(self,feature_name,*event_names):
+		Feature.__init__(self,feature_name,"Count")
+		self.event_names = event_names
+	
+	def query(self,example_moment):
+		all_count = 0.0
+		for event in self.event_names:
+			all_count += len(example_moment.times_since_occurrence(event))
+		
+		return all_count
+
 # obviously, this feature type should only be used for example-moments with
 # date or datetime moments
 class Feature_MonthDay(Feature):
